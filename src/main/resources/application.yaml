@@ -4,5 +4,14 @@ spring:
   mongodb:
     uri: mongodb+srv://mafernandeza:GZJ8GFDVylCuCsG0@hacom.uw7vwmx.mongodb.net/bd-pedidos?appName=hacom
 
+#mongodb:
+#  host: hacom.uw7vwmx.mongodb.net
+#  port: 27017
+#  database: bd-pedidos
+#  username: usuario
+#  password: clave
+#  authDatabase: admin
+#  srv: true
+
 server:
   port: 9090
