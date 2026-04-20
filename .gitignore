@@ -1,0 +1,35 @@
+# Gradle
+.gradle/
+build/
+
+# Eclipse/IntelliJ/IDE files
+*.iml
+.idea/
+*.ipr
+*.iws
+out/
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+
+# Temporary files
+tmp/
+
+# Compiled class files
+*.class
+
+# Maven wrapper
+.mvn/
+
+# Spring Boot generated
+spring-boot-devtools.properties
+
+# Sensitive files
+.env
+

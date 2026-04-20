@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: app-hacom
+  mongodb:
+    uri: mongodb+srv://mafernandeza:GZJ8GFDVylCuCsG0@hacom.uw7vwmx.mongodb.net/bd-pedidos?appName=hacom
+
+server:
+  port: 9090
