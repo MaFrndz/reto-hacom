@@ -2,15 +2,20 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '4.0.5'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'com.google.protobuf' version '0.9.4'
 }
 
 group = 'com.hacom'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
-	}
+	// Comentamos el uso del toolchain para evitar que Gradle intente descargar/usar un JDK 17
+	// toolchain {
+	//	languageVersion = JavaLanguageVersion.of(17)
+	// }
+	// En su lugar definimos compatibilidad para compilación (se usará la JVM instalada)
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
 }
 
 repositories {
@@ -22,12 +27,76 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	// Spring Data MongoDB Reactive
 	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
+	// Log4j2
+	implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+	// Actuator + prometheus registry
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+	// Akka (Classic) - requires Scala 2.13 build
+	implementation 'com.typesafe.akka:akka-actor_2.13:2.6.20'
+	// SMPP client (cloudhopper-smpp) - commented out temporarily because artifact resolution failed during proto generation
+	// implementation 'com.cloudhopper:cloudhopper-smpp:2.0.5'
+	// gRPC (runtime libraries)
+	implementation 'io.grpc:grpc-netty-shaded:1.54.0'
+	implementation 'io.grpc:grpc-protobuf:1.54.0'
+	implementation 'io.grpc:grpc-stub:1.54.0'
+	// gRPC server reflection (optional, useful for grpcurl without proto)
+	implementation 'io.grpc:grpc-services:1.54.0'
+
+	// Annotation API to satisfy generated @Generated imports from protobuf/grpc code
+	implementation 'javax.annotation:javax.annotation-api:1.3.2'
+
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+	// Excluir el starter de logging (logback) en test para evitar múltiples proveedores SLF4J
+	configurations.all {
+		// Asegurarnos de que logback no entre junto con log4j2
+		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+	}
 	testCompileOnly 'org.projectlombok:lombok'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testAnnotationProcessor 'org.projectlombok:lombok'
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.21.12"
+    }
+    plugins {
+        grpc {
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.54.0'
+        }
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.plugins {
+                grpc {}
+            }
+        }
+    }
+}
+
+sourceSets {
+    main {
+        // Excluir archivos .proto del classpath de recursos para evitar duplicados
+        resources {
+            srcDirs = ['src/main/resources']
+            exclude '**/*.proto'
+        }
+        proto {
+            srcDir 'src/main/proto'
+        }
+    }
+}
+
+// Asegurar que el task processResources no falle por entradas duplicadas
+tasks.named('processResources') {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.withType(org.gradle.api.tasks.Copy).configureEach {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 tasks.named('test') {
