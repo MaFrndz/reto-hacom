@@ -14,7 +14,10 @@ public class OrderGrpcServiceImpl extends OrderServiceGrpc.OrderServiceImplBase 
     private final ActorRef orderProcessorActor;
 
     public OrderGrpcServiceImpl(ActorSystem actorSystem, OrderRepository orderRepository) {
-        this.orderProcessorActor = actorSystem.actorOf(OrderProcessorActor.props(orderRepository), "order-processor");
+        this.orderProcessorActor = actorSystem.actorOf(
+                OrderProcessorActor.props(orderRepository),
+                "order-processor"
+        );
     }
 
     @Override
