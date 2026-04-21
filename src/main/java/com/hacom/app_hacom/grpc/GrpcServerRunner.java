@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -17,10 +18,13 @@ public class GrpcServerRunner implements ApplicationRunner {
 
     private static final Logger log = LoggerFactory.getLogger(GrpcServerRunner.class);
 
-    private final OrderGrpcService orderGrpcService;
+    @Value("${grpc.server.port:6565}")
+    private int grpcPort;
+
+    private final OrderGrpcServiceImpl orderGrpcService;
     private Server server;
 
-    public GrpcServerRunner(OrderGrpcService orderGrpcService) {
+    public GrpcServerRunner(OrderGrpcServiceImpl orderGrpcService) {
         this.orderGrpcService = orderGrpcService;
     }
 
@@ -37,14 +41,13 @@ public class GrpcServerRunner implements ApplicationRunner {
     }
 
     public void start() throws IOException {
-        int port = 6565;
-        server = NettyServerBuilder.forPort(port)
+        server = NettyServerBuilder.forPort(grpcPort)
                 .addService(orderGrpcService)
                 // enable server reflection so tools like grpcurl can discover services and methods
                 .addService(ProtoReflectionService.newInstance())
                 .build()
                 .start();
-        log.info("gRPC server started on port {}", port);
+        log.info("gRPC server started on port {}", grpcPort);
     }
 
     public void stop() throws InterruptedException {
