@@ -17,13 +17,20 @@ public class OrderGrpcServiceImpl extends OrderServiceGrpc.OrderServiceImplBase 
     private final ActorRef orderProcessorActor;
     private final Counter ordersReceivedCounter;
 
-    public OrderGrpcServiceImpl(ActorSystem actorSystem, OrderRepository orderRepository, SmppSenderService smppSenderService, MeterRegistry meterRegistry) {
-        this.orderProcessorActor = actorSystem.actorOf(OrderProcessorActor.props(orderRepository, smppSenderService), "order-processor");
-        this.ordersReceivedCounter = meterRegistry.counter("grpc.orders.received.total", "type", "insert_order");
+    public OrderGrpcServiceImpl(ActorSystem actorSystem,
+                                OrderRepository orderRepository,
+                                SmppSenderService smppSenderService,
+                                MeterRegistry meterRegistry) {
+        this.orderProcessorActor = actorSystem.actorOf(
+                OrderProcessorActor.props(orderRepository, smppSenderService),
+                "order-processor");
+        this.ordersReceivedCounter = meterRegistry.counter(
+                "grpc.orders.received.total", "type", "insert_order");
     }
 
     @Override
-    public void insertOrder(InsertOrderRequest request, StreamObserver<InsertOrderResponse> responseObserver) {
+    public void insertOrder(InsertOrderRequest request,
+                            StreamObserver<InsertOrderResponse> responseObserver) {
         ordersReceivedCounter.increment();
         ProcessOrderMessage msg = new ProcessOrderMessage(request, responseObserver);
         orderProcessorActor.tell(msg, ActorRef.noSender());
