@@ -5,6 +5,7 @@ import akka.actor.Props;
 import com.hacom.app_hacom.grpc.InsertOrderResponse;
 import com.hacom.app_hacom.model.Order;
 import com.hacom.app_hacom.repository.OrderRepository;
+import com.hacom.app_hacom.smpp.SmppSenderService;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,13 +18,15 @@ public class OrderProcessorActor extends AbstractActor {
     private static final Logger log = LoggerFactory.getLogger(OrderProcessorActor.class);
 
     private final OrderRepository orderRepository;
+    private final SmppSenderService smppSenderService;
 
-    public OrderProcessorActor(OrderRepository orderRepository) {
+    public OrderProcessorActor(OrderRepository orderRepository, SmppSenderService smppSenderService) {
         this.orderRepository = orderRepository;
+        this.smppSenderService = smppSenderService;
     }
 
-    public static Props props(OrderRepository orderRepository) {
-        return Props.create(OrderProcessorActor.class, () -> new OrderProcessorActor(orderRepository));
+    public static Props props(OrderRepository orderRepository, SmppSenderService smppSenderService) {
+        return Props.create(OrderProcessorActor.class, () -> new OrderProcessorActor(orderRepository, smppSenderService));
     }
 
     @Override
@@ -49,7 +52,9 @@ public class OrderProcessorActor extends AbstractActor {
                 savedDoc -> {
                     log.info("Order saved to MongoDB with ObjectId: {}", savedDoc.get_id());
 
-                    // Aquí irá la lógica de SMPP
+                    // Aquí llamamos al servicio SMPP para enviar el SMS
+                    String message = "Your order " + msg.getRequest().getOrderId() + " has been processed";
+                    smppSenderService.sendSms(msg.getRequest().getCustomerPhoneNumber(), message);
 
                     InsertOrderResponse response = InsertOrderResponse.newBuilder()
                             .setOrderId(savedDoc.getOrderId())

@@ -5,6 +5,7 @@ import akka.actor.ActorSystem;
 import com.hacom.app_hacom.akka.OrderProcessorActor;
 import com.hacom.app_hacom.akka.ProcessOrderMessage;
 import com.hacom.app_hacom.repository.OrderRepository;
+import com.hacom.app_hacom.smpp.SmppSenderService;
 import io.grpc.stub.StreamObserver;
 import org.springframework.stereotype.Service;
 
@@ -13,11 +14,8 @@ public class OrderGrpcServiceImpl extends OrderServiceGrpc.OrderServiceImplBase 
 
     private final ActorRef orderProcessorActor;
 
-    public OrderGrpcServiceImpl(ActorSystem actorSystem, OrderRepository orderRepository) {
-        this.orderProcessorActor = actorSystem.actorOf(
-                OrderProcessorActor.props(orderRepository),
-                "order-processor"
-        );
+    public OrderGrpcServiceImpl(ActorSystem actorSystem, OrderRepository orderRepository, SmppSenderService smppSenderService) {
+        this.orderProcessorActor = actorSystem.actorOf(OrderProcessorActor.props(orderRepository, smppSenderService), "order-processor");
     }
 
     @Override

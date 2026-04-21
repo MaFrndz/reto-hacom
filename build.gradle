@@ -34,8 +34,8 @@ dependencies {
 	implementation 'io.micrometer:micrometer-registry-prometheus'
 	// Akka (Classic) - requires Scala 2.13 build
 	implementation 'com.typesafe.akka:akka-actor_2.13:2.6.20'
-	// SMPP client (cloudhopper-smpp) - commented out temporarily because artifact resolution failed during proto generation
-	// implementation 'com.cloudhopper:cloudhopper-smpp:2.0.5'
+	// SMPP client (cloudhopper-smpp)
+	implementation 'com.fizzed:ch-smpp:5.0.9'
 	// gRPC (runtime libraries)
 	implementation 'io.grpc:grpc-netty-shaded:1.54.0'
 	implementation 'io.grpc:grpc-protobuf:1.54.0'
