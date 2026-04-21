@@ -1,7 +1,18 @@
 spring:
   application:
     name: app-hacom
-
 mongodbDatabase: bd-pedidos
 mongodbUri: "mongodb+srv://mafernandeza:GZJ8GFDVylCuCsG0@hacom.uw7vwmx.mongodb.net/bd-pedidos?appName=hacom"
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus,info
+      base-path: /actuator
+  metrics:
+    tags:
+      application: app-hacom
+
 apiPort: 9090
